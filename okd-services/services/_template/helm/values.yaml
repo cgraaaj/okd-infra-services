@@ -1,0 +1,5 @@
+# Placeholder — copy and customize per service
+
+global:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""

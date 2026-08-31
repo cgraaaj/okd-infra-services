@@ -1,0 +1,23 @@
+# cert-manager on OKD — align with K3s dev (v1.20.2, DNS-01 via Cloudflare).
+# Install: see ../README.md
+
+crds:
+  enabled: true
+  keep: true
+
+replicaCount: 2
+
+global:
+  leaderElection:
+    namespace: cert-manager
+
+# Required for reliable DNS-01 against public resolvers from cluster pods.
+extraArgs:
+  - --dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53
+  - --dns01-recursive-nameservers-only
+
+podDnsPolicy: None
+podDnsConfig:
+  nameservers:
+    - 1.1.1.1
+    - 9.9.9.9

@@ -1,0 +1,26 @@
+# OKD router must read the TLS secret referenced by Route.spec.tls.externalCertificate.
+# https://docs.okd.io/latest/networking/ingress_load_balancing/routes/securing-routes.html
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: authentik-tls-reader
+  namespace: authentik
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["authentik-tls"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: authentik-tls-reader-router
+  namespace: authentik
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: authentik-tls-reader
+subjects:
+  - kind: ServiceAccount
+    name: router
+    namespace: openshift-ingress

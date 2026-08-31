@@ -1,0 +1,43 @@
+authentik:
+  secret_key: "OjQKsE5jvVtPicanqA9Ccae4VSRfDUqh8gHJxk1yD/ZPwtBcSs/dP5f8ys6Z30yc"
+  error_reporting:
+    enabled: false
+  postgresql:
+    password: "kNmiWUEiy4y23gLYrt1SWFDi2kbNClp0"
+
+global:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+server:
+  ingress:
+    enabled: false
+  env:
+    - name: AUTHENTIK_HOST
+      value: "https://auth.cgraaaj.in"
+
+postgresql:
+  enabled: true
+  auth:
+    username: authentik
+    database: authentik
+    password: "kNmiWUEiy4y23gLYrt1SWFDi2kbNClp0"
+  primary:
+    args: []
+    persistence:
+      enabled: true
+      storageClass: local-path-retain
+      size: 8Gi
+    podSecurityContext:
+      fsGroup: 999
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      runAsUser: 999
+      runAsNonRoot: true
+      readOnlyRootFilesystem: false
+    extraEnvVars:
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+    configuration: ""
+    pgHbaConfiguration: ""
+    extendedConfiguration: ""

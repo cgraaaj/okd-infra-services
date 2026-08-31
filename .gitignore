@@ -1,0 +1,10 @@
+*.pem
+*.key
+.env
+.env.*
+pass.txt
+dockerconfig.json
+**/secrets.yaml
+kubeconfig
+.secrets/
+.DS_Store

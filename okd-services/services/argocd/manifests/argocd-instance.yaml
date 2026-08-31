@@ -1,0 +1,12 @@
+# Patch the operator-managed ArgoCD CR: disable default apps route (we use argocd.cgraaaj.in).
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  server:
+    route:
+      enabled: false
+    ingress:
+      enabled: false
