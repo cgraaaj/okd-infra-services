@@ -1,12 +1,11 @@
-# Patch the operator-managed ArgoCD CR: disable default apps route (we use argocd.cgraaaj.in).
+# One-time cluster permissions for platform GitOps (apply before bootstrap sync).
+# The Argo CD operator creates namespace-scoped Roles only; platform apps need cluster scope.
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
   name: argocd
   namespace: argocd
 spec:
-  server:
-    route:
-      enabled: false
-    ingress:
-      enabled: false
+  namespaceManagement:
+    - name: "*"
+      allowManagedBy: true

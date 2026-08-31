@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - route.yaml
   - route-tls-rbac.yaml
+  - cluster-rbac.yaml
