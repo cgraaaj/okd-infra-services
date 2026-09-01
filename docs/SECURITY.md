@@ -23,7 +23,7 @@
 | Phase | Approach |
 |-------|----------|
 | Now | `.secrets/` locally (gitignored); `oc create secret` for bootstrap |
-| Phase C | **External Secrets Operator** on OKD → Vault on K3s |
+| Phase C | **External Secrets Operator** on OKD → **HashiCorp Vault on K3s** (`hashicorpvault.cgraaaj.in`, KV `okd/platform/*`) — see [VAULT_ESO.md](VAULT_ESO.md) |
 | Not now | Sealed Secrets, SOPS in git (add if team/gitops need grows) |
 
 ## RBAC

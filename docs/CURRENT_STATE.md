@@ -1,6 +1,6 @@
 # CURRENT_STATE — OKD Prod Cluster
 
-> Last updated: 2026-09-01 (post Phase C partial)
+> Last updated: 2026-09-01 (post Phase C4 + D1)
 
 ## Cluster Summary
 
@@ -35,6 +35,8 @@ Masters have `node-role.kubernetes.io/control-plane:NoSchedule`. User workloads 
 | `cert-manager` | controller, webhook, cainjector | TLS (LE DNS-01) | workers |
 | `local-path-storage` | provisioner | Dynamic local PVs | workers |
 | `argocd` | server, repo-server, redis, controller | Argo CD (operator) | workers |
+| `external-secrets` | controller, webhook, cert-controller | Vault → K8s secret sync | workers |
+| `observability` | otel-gateway, otel-agent (DaemonSet) | OTLP ingest (→ HyperDX D2) | workers |
 
 ## StorageClasses
 
@@ -70,19 +72,26 @@ Same passthrough path for `argocd.cgraaaj.in` → `argocd-server` (Route `extern
 | Item | Status |
 |------|--------|
 | URL | `https://argocd.cgraaaj.in` |
-| AppProjects | `platform`, `applications` applied |
-| Bootstrap Application | **pending** — needs git remote |
-| Platform Applications | defined in `okd-gitops/environments/prod/platform/` |
-| Local git | `git init` on this repo; push to GitHub/Cursor remote required |
+| Login | **Authentik OIDC** (`argocd-prod` client, issuer `/application/o/argocd/`) |
+| AppProjects | `platform`, `applications` |
+| Platform apps | Synced via `okd-prod-bootstrap` |
+| Client secret | Vault `okd/platform/argocd/oidc` → ESO `argocd-oidc` |
 
-Run after remote is available:
+## Secrets (Vault + ESO)
 
-```bash
-export GIT_REPO_URL=https://github.com/cgraaaj/okd-infra-services.git
-./okd-gitops/scripts/bootstrap-gitops.sh
-```
+| Item | Status |
+|------|--------|
+| Vault | K3s `hashicorpvault.cgraaaj.in`, KV `kv-v2/okd/platform/*` |
+| ESO | `ClusterSecretStore vault-kv` Ready |
+| Synced secrets | `argocd/argocd-oidc`, `cert-manager/cloudflare-token-secret` |
 
-**Traefik note:** live config is mounted from `~/Backups/Docker/home-lab-docker-setup/.../main-routes.yaml` (not `~/Projects/...`).
+## Observability (Phase D)
+
+| Item | Status |
+|------|--------|
+| OTel gateway | `otel-gateway.observability.svc:4317` |
+| OTel agent | DaemonSet on workers |
+| HyperDX | Not deployed (D2) |
 
 ## Docker Host (Wraithking) Dependencies
 

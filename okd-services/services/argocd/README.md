@@ -15,12 +15,27 @@ export KUBECONFIG=/path/to/okd/kubeconfig
 
 ## Admin login
 
+**Preferred:** Authentik OIDC — click **LOG IN VIA AUThentik** at https://argocd.cgraaaj.in
+
 ```bash
-# bcrypt password from secret (reset if unknown):
-oc get secret argocd-secret -n argocd -o jsonpath='{.data.admin\.password}' | base64 -d; echo
+./scripts/configure-oidc.sh   # (re)create Authentik provider + Argo CD config
 ```
 
-Or use Authentik OIDC once configured (Phase C+).
+RBAC (Authentik groups → Argo CD roles):
+
+| Authentik group | Argo CD role |
+|-----------------|--------------|
+| `authentik Admins` | admin |
+| `argocd-admins` | admin |
+| `argocd-platform` | platform-admin (sync platform apps) |
+
+**Break-glass local admin:** reset bcrypt hash in `argocd-secret` (not the plaintext password):
+
+```bash
+NEW_PASS='...'
+BCRYPT=$(argocd account bcrypt --password "$NEW_PASS")
+oc patch secret argocd-secret -n argocd --type merge -p "$(jq -nc --arg p "$BCRYPT" --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{stringData:{"admin.password":$p,"admin.passwordMtime":$t}}')"
+```
 
 ## GitOps bootstrap
 

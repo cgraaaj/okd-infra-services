@@ -17,25 +17,26 @@
 8. 14 planning documents
 9. Repo scaffold (`okd-gitops`, `okd-policies`, service template)
 
-### Phase C — GitOps platform (in progress)
+### Phase C — GitOps platform ✅
 | # | Task | Status |
 |---|------|--------|
 | C1 | Argo CD route, cm, AppProjects | ✅ |
 | C5 | `argocd.cgraaaj.in` Route + cert | ✅ |
-| C2 | Bootstrap `okd-gitops` app-of-apps | ⏳ needs git remote |
-| C3 | GitOps-manage cert-manager, local-path, authentik | ⏳ after C2 |
-| C4 | External Secrets Operator + Vault | pending |
+| C2 | Bootstrap `okd-gitops` app-of-apps | ✅ |
+| C3 | GitOps-manage cert-manager, local-path, authentik | ✅ |
+| C7 | Authentik OIDC for Argo CD | ✅ |
+| C4 | External Secrets Operator + Vault | ✅ |
 | C6 | Restore Authentication operator `Managed` | optional |
 
 ## In progress / next
 
-### Phase D — Observability & backup
-| # | Task |
-|---|------|
-| D1 | OTel Collector |
-| D2 | HyperDX + ClickHouse (prod sizing) |
-| D3 | Velero + backup schedules |
-| D4 | NAS NFS CSI (if storage pressure) |
+### Phase D — Observability & backup ← **in progress**
+| # | Task | Status |
+|---|------|--------|
+| D1 | OTel Collector | ✅ gateway + agent |
+| D2 | HyperDX + ClickHouse (prod sizing) | ⏳ next |
+| D3 | Velero + backup schedules | |
+| D4 | NAS NFS CSI (if storage pressure) | |
 
 ### Phase E — Applications
 | # | Task |
@@ -47,8 +48,8 @@
 
 | Gate | Criteria |
 |------|----------|
-| **M1 Platform** | Argo CD syncs all platform apps; login via Authentik | ← **you are here → next** |
-| **M2 Observable** | OTel + HyperDX receiving prod traces |
+| **M1 Platform** | Argo CD syncs platform apps; login via Authentik | ✅ |
+| **M2 Observable** | OTel + HyperDX receiving prod traces | D1 ✅, D2 next |
 | **M3 Apps** | ≥1 prod app on OKD with CI promotion |
 | **M4 DR** | Velero restore tested |
 

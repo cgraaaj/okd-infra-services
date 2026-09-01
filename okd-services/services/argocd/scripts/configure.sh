@@ -12,12 +12,20 @@ if ! oc whoami >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "== ArgoCD CR (disable default route) =="
+echo "== ArgoCD CR (disable default route, public URL, insecure) =="
 oc patch argocd argocd -n argocd --type merge -p '{
   "spec": {
     "server": {
       "route": { "enabled": false },
-      "ingress": { "enabled": false }
+      "ingress": { "enabled": false },
+      "extraCommandArgs": ["--insecure"]
+    },
+    "cmdParams": {
+      "server.insecure": "true"
+    },
+    "extraConfig": {
+      "url": "https://argocd.cgraaaj.in",
+      "server.insecure": "true"
     }
   }
 }'
@@ -30,14 +38,6 @@ oc apply -f "${ROOT}/manifests/route-tls-rbac.yaml"
 
 echo "== Route =="
 oc apply -f "${ROOT}/manifests/route.yaml"
-
-echo "== argocd-cm url + server.insecure =="
-oc patch configmap argocd-cm -n argocd --type merge -p '{
-  "data": {
-    "url": "https://argocd.cgraaaj.in",
-    "server.insecure": "true"
-  }
-}'
 
 echo "waiting for Certificate Ready..."
 for i in $(seq 1 36); do

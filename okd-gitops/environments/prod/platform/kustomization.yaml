@@ -6,3 +6,5 @@ resources:
   - cert-manager-config.yaml
   - authentik.yaml
   - argocd-config.yaml
+  - external-secrets.yaml
+  - otel-collector.yaml
