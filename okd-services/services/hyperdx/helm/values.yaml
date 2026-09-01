@@ -1,0 +1,61 @@
+global:
+  storageClassName: local-path-retain
+  keepPVC: true
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+# Use existing OKD OTel gateway (Phase D1); chart collector disabled.
+otel:
+  enabled: false
+
+hyperdx:
+  frontendUrl: "https://hyperdx.cgraaaj.in"
+  apiKey: "2da92945-b35c-4a21-b845-313d92305119"
+  otelExporterEndpoint: "http://otel-gateway.observability.svc.cluster.local:4318"
+  ingress:
+    enabled: false
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+mongodb:
+  enabled: true
+  image: "docker.io/library/mongo:5.0.14-focal"
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+clickhouse:
+  enabled: true
+  image: "docker.io/clickhouse/clickhouse-server:25.7-alpine"
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 3Gi
+  config:
+    users:
+      appUserPassword: "okd-hyperdx-app-2026"
+      otelUserName: otelcollector
+      otelUserPassword: "okd-hyperdx-otel-2026"
+    clusterCidrs:
+      - "10.0.0.0/8"
+      - "10.128.0.0/14"
+      - "10.43.0.0/16"

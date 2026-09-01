@@ -34,8 +34,8 @@
 | # | Task | Status |
 |---|------|--------|
 | D1 | OTel Collector | ✅ gateway + agent |
-| D2 | HyperDX + ClickHouse (prod sizing) | ⏳ next |
-| D3 | Velero + backup schedules | |
+| D2 | HyperDX + ClickHouse | ✅ (emptyDir; NAS persistence in D4) |
+| D3 | Velero + backup schedules | ⏳ next |
 | D4 | NAS NFS CSI (if storage pressure) | |
 
 ### Phase E — Applications
@@ -49,7 +49,7 @@
 | Gate | Criteria |
 |------|----------|
 | **M1 Platform** | Argo CD syncs platform apps; login via Authentik | ✅ |
-| **M2 Observable** | OTel + HyperDX receiving prod traces | D1 ✅, D2 next |
+| **M2 Observable** | OTel + HyperDX receiving prod traces | ✅ (validate ingest in UI) |
 | **M3 Apps** | ≥1 prod app on OKD with CI promotion |
 | **M4 DR** | Velero restore tested |
 

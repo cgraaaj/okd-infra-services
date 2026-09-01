@@ -1,0 +1,25 @@
+# OKD router must read the TLS secret referenced by Route.spec.tls.externalCertificate.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hyperdx-tls-reader
+  namespace: observability
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["hyperdx-tls"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hyperdx-tls-reader-router
+  namespace: observability
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hyperdx-tls-reader
+subjects:
+  - kind: ServiceAccount
+    name: router
+    namespace: openshift-ingress

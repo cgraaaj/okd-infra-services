@@ -8,3 +8,4 @@ resources:
   - argocd-config.yaml
   - external-secrets.yaml
   - otel-collector.yaml
+  - hyperdx.yaml

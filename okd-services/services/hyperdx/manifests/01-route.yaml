@@ -1,0 +1,21 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hyperdx
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: hyperdx
+spec:
+  host: hyperdx.cgraaaj.in
+  to:
+    kind: Service
+    name: hyperdx-hdx-oss-v2-app
+    weight: 100
+  port:
+    targetPort: app
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    externalCertificate:
+      name: hyperdx-tls
+  wildcardPolicy: None

@@ -27,6 +27,7 @@ data:
     metadata:
       name: helper-pod
     spec:
+      serviceAccountName: local-path-provisioner-service-account
       priorityClassName: system-node-critical
       tolerations:
         - operator: Exists
@@ -34,3 +35,6 @@ data:
         - name: helper-pod
           image: docker.io/library/busybox:latest
           imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            privileged: true
