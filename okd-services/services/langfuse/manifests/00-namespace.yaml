@@ -1,7 +1,17 @@
 # Managed by Argo CD (this instance only manages labeled namespaces).
+# PSA enforce=privileged + label-sync off: stateful pods mount local-path
+# (hostPath) PVCs and need seLinuxOptions type spc_t, which PSA restricted
+# forbids. Same pattern as the observability namespace.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: langfuse
   labels:
     argocd.argoproj.io/managed-by: argocd
+    security.openshift.io/scc.podSecurityLabelSync: "false"
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest

@@ -1,0 +1,16 @@
+# Allow the PostgreSQL SA to use the privileged SCC so its pod may set
+# seLinuxOptions.type=spc_t — required to write local-path (hostPath) PVCs,
+# which kubelet does not SELinux-relabel. Same pattern as observability.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:privileged
+  namespace: llm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+  - kind: ServiceAccount
+    name: litellm-postgresql
+    namespace: llm

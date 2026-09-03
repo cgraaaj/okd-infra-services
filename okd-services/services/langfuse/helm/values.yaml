@@ -100,11 +100,14 @@ postgresql:
       enabled: true
       storageClass: local-path-retain
       size: 5Gi
-    # OKD restricted SCC assigns UID/fsGroup — do not pin bitnami defaults.
+    # local-path PVCs are hostPath — kubelet does not SELinux-relabel them, so
+    # the container must run as spc_t (privileged SCC via manifests/03-scc-rolebinding.yaml).
     podSecurityContext:
       enabled: false
     containerSecurityContext:
-      enabled: false
+      enabled: true
+      seLinuxOptions:
+        type: spc_t
     resources:
       requests:
         cpu: 100m
@@ -127,7 +130,9 @@ redis:
     podSecurityContext:
       enabled: false
     containerSecurityContext:
-      enabled: false
+      enabled: true
+      seLinuxOptions:
+        type: spc_t
     resources:
       requests:
         cpu: 50m
@@ -163,7 +168,9 @@ clickhouse:
   podSecurityContext:
     enabled: false
   containerSecurityContext:
-    enabled: false
+    enabled: true
+    seLinuxOptions:
+      type: spc_t
   volumePermissions:
     enabled: false
 
@@ -182,7 +189,14 @@ s3:
   podSecurityContext:
     enabled: false
   containerSecurityContext:
-    enabled: false
+    enabled: true
+    seLinuxOptions:
+      type: spc_t
+  provisioning:
+    containerSecurityContext:
+      enabled: true
+      seLinuxOptions:
+        type: spc_t
   volumePermissions:
     enabled: false
   resources:

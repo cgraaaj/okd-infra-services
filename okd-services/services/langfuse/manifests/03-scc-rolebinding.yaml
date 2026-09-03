@@ -1,0 +1,25 @@
+# Allow the stateful workloads' SAs to use the privileged SCC so their pods may
+# set seLinuxOptions.type=spc_t — required to write local-path (hostPath) PVCs,
+# which kubelet does not SELinux-relabel. Same pattern as observability.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:privileged
+  namespace: langfuse
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+  - kind: ServiceAccount
+    name: langfuse-postgresql
+    namespace: langfuse
+  - kind: ServiceAccount
+    name: langfuse-redis-primary
+    namespace: langfuse
+  - kind: ServiceAccount
+    name: langfuse-clickhouse
+    namespace: langfuse
+  - kind: ServiceAccount
+    name: langfuse-s3
+    namespace: langfuse
