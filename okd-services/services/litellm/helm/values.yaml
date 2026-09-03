@@ -63,6 +63,12 @@ db:
 
 migrationJob:
   enabled: true
+  hooks:
+    argocd:
+      # PreSync hook deadlocks a fresh install (PG is part of the same sync and
+      # does not exist yet). Runs as a plain resource; its backoff retries until
+      # PostgreSQL is ready. Re-enable after first install for migration-on-upgrade.
+      enabled: false
 
 resources:
   requests:
