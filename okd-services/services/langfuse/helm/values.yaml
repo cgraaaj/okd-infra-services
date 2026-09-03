@@ -67,6 +67,9 @@ langfuse:
           key: init-project-secret-key
 
   web:
+    image:
+      # Fully qualified — CRI-O on OKD enforces no short names.
+      repository: docker.io/langfuse/langfuse
     resources:
       requests:
         cpu: 250m
@@ -74,6 +77,8 @@ langfuse:
       limits:
         memory: 1Gi
   worker:
+    image:
+      repository: docker.io/langfuse/langfuse-worker
     resources:
       requests:
         cpu: 250m
