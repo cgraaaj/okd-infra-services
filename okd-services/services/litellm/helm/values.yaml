@@ -1,0 +1,76 @@
+# LiteLLM proxy on OKD — OpenAI-compatible gateway in front of the llama.cpp
+# backend on ai-server (10.19.94.73:8080, AMD R9700 Pro).
+# Secrets come from Vault via ESO (secrets litellm-core / litellm-db, see manifests/).
+fullnameOverride: litellm
+
+image:
+  repository: ghcr.io/berriai/litellm
+  # tag defaults to the chart appVersion (1.99.0)
+
+nodeSelector:
+  node-role.kubernetes.io/worker: ""
+
+# PROXY_MASTER_KEY from ESO secret litellm-core (key MASTER_KEY)
+masterkeySecretName: litellm-core
+masterkeySecretKey: MASTER_KEY
+
+# Exports LANGFUSE_HOST / LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY (+ MASTER_KEY)
+# as env vars for the langfuse callback.
+environmentSecrets:
+  - litellm-core
+
+proxyConfigMap:
+  create: true
+
+proxy_config:
+  model_list:
+    - model_name: qwen3.8-27b
+      litellm_params:
+        model: openai/Qwen3.8-27B-Q4_K_M
+        api_base: http://10.19.94.73:8080/v1
+        api_key: none
+      model_info:
+        # Local GPU model — not in the LiteLLM cost map. Explicit zero cost keeps
+        # spend tracking honest and silences the register_model warnings.
+        input_cost_per_token: 0
+        output_cost_per_token: 0
+        cache_read_input_token_cost: 0
+        cache_creation_input_token_cost: 0
+
+  general_settings:
+    master_key: os.environ/PROXY_MASTER_KEY
+
+  litellm_settings:
+    # LLM traces/tokens/cost -> Langfuse (reads LANGFUSE_* env from litellm-core).
+    success_callback: ["langfuse"]
+    failure_callback: ["langfuse"]
+    # NOTE: no `otel` callback here on purpose — LLM spans must not be duplicated
+    # into HyperDX (plan.md: Langfuse is the only LLM telemetry sink).
+
+# PostgreSQL deployed as a second chart source in the same Argo CD app
+# (bitnami/postgresql, see values-postgres.yaml) so its password can come from
+# an ESO secret instead of chart values.
+db:
+  deployStandalone: false
+  useExisting: true
+  endpoint: litellm-postgresql
+  database: litellm
+  url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST):5432/$(DATABASE_NAME)
+  secret:
+    name: litellm-db
+    usernameKey: username
+    passwordKey: password
+
+migrationJob:
+  enabled: true
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+
+service:
+  type: ClusterIP
+  port: 4000

@@ -1,0 +1,21 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: langfuse
+  namespace: langfuse
+  labels:
+    app.kubernetes.io/name: langfuse
+spec:
+  host: langfuse.cgraaaj.in
+  to:
+    kind: Service
+    name: langfuse-web
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    externalCertificate:
+      name: langfuse-tls
+  wildcardPolicy: None

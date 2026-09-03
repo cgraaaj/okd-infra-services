@@ -9,3 +9,5 @@ resources:
   - external-secrets.yaml
   - otel-collector.yaml
   - hyperdx.yaml
+  - litellm.yaml
+  - langfuse.yaml

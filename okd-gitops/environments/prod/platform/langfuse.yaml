@@ -1,0 +1,55 @@
+# Langfuse (ns langfuse): ESO secret + Route first (wave 0), then the chart
+# (wave 1) which consumes langfuse-core for all component credentials.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: langfuse-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/cgraaaj/okd-infra-services.git
+    targetRevision: main
+    path: okd-services/services/langfuse/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: langfuse
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: langfuse
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: platform
+  sources:
+    - repoURL: https://langfuse.github.io/langfuse-k8s
+      chart: langfuse
+      targetRevision: 1.5.41
+      helm:
+        # Release name must be "langfuse" (chart builds the redis hostname from it).
+        releaseName: langfuse
+        valueFiles:
+          - $values/okd-services/services/langfuse/helm/values.yaml
+    - repoURL: https://github.com/cgraaaj/okd-infra-services.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: langfuse
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

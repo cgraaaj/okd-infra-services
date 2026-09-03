@@ -1,0 +1,42 @@
+# Bitnami PostgreSQL for LiteLLM (second chart source of the litellm Argo CD app).
+# Credentials come from ESO secret litellm-db (Vault: okd/platform/litellm/db).
+fullnameOverride: litellm-postgresql
+
+image:
+  # bitnamilegacy: docker.io/bitnami versioned tags were retired.
+  repository: bitnamilegacy/postgresql
+  tag: 16.2.0-debian-12-r6
+
+auth:
+  username: litellm
+  database: litellm
+  existingSecret: litellm-db
+  secretKeys:
+    userPasswordKey: password
+    adminPasswordKey: postgres-password
+
+primary:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  persistence:
+    enabled: true
+    storageClass: local-path-retain
+    size: 5Gi
+  # OKD restricted SCC assigns UID/fsGroup — do not pin bitnami defaults (1001).
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+# chown init container runs as root — blocked by restricted SCC; fsGroup handles perms.
+volumePermissions:
+  enabled: false
+
+metrics:
+  enabled: false

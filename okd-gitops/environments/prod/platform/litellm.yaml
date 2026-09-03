@@ -1,0 +1,61 @@
+# LiteLLM proxy (ns llm): ESO secrets + Route first (wave 0), then the
+# postgresql + litellm-helm charts (wave 1) which consume those secrets.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litellm-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/cgraaaj/okd-infra-services.git
+    targetRevision: main
+    path: okd-services/services/litellm/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: llm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litellm
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: platform
+  sources:
+    # PostgreSQL for LiteLLM (credentials via ESO secret litellm-db)
+    - repoURL: registry-1.docker.io/bitnamicharts
+      chart: postgresql
+      targetRevision: 14.3.1
+      helm:
+        valueFiles:
+          - $values/okd-services/services/litellm/helm/values-postgres.yaml
+    # LiteLLM proxy
+    - repoURL: ghcr.io/berriai
+      chart: litellm-helm
+      targetRevision: 1.99.0
+      helm:
+        valueFiles:
+          - $values/okd-services/services/litellm/helm/values.yaml
+    - repoURL: https://github.com/cgraaaj/okd-infra-services.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: llm
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

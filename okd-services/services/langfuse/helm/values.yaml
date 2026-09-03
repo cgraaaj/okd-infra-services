@@ -1,0 +1,188 @@
+# Langfuse on OKD (ns langfuse) — LLM observability for the LiteLLM gateway.
+# Chart: langfuse/langfuse 1.5.41 (v1.x — v2 needs the ClickHouse operator, deferred).
+# All credentials come from Vault via ESO secret langfuse-core (see manifests/).
+# Release name MUST be "langfuse" (chart builds the redis hostname from it).
+
+langfuse:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+  nextauth:
+    url: https://langfuse.cgraaaj.in
+    secret:
+      secretKeyRef:
+        name: langfuse-core
+        key: nextauth-secret
+
+  # API-key hashing salt and 256-bit encryption key (hex) for stored secrets.
+  salt:
+    secretKeyRef:
+      name: langfuse-core
+      key: salt
+  encryptionKey:
+    secretKeyRef:
+      name: langfuse-core
+      key: encryption-key
+
+  features:
+    telemetryEnabled: false
+    # Headless init below creates the admin user + project; no public sign-up.
+    signUpDisabled: true
+
+  # Headless initialization: org/project/admin user and the project API keys that
+  # LiteLLM uses for its langfuse callback (same pair, shared via Vault).
+  additionalEnv:
+    - name: LANGFUSE_INIT_ORG_ID
+      value: "okd"
+    - name: LANGFUSE_INIT_ORG_NAME
+      value: "OKD"
+    - name: LANGFUSE_INIT_PROJECT_ID
+      value: "default"
+    - name: LANGFUSE_INIT_PROJECT_NAME
+      value: "default"
+    - name: LANGFUSE_INIT_USER_EMAIL
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-core
+          key: init-user-email
+    - name: LANGFUSE_INIT_USER_NAME
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-core
+          key: init-user-name
+    - name: LANGFUSE_INIT_USER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-core
+          key: init-user-password
+    - name: LANGFUSE_INIT_PROJECT_PUBLIC_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-core
+          key: init-project-public-key
+    - name: LANGFUSE_INIT_PROJECT_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-core
+          key: init-project-secret-key
+
+  web:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+  worker:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+
+postgresql:
+  deploy: true
+  auth:
+    username: postgres
+    database: postgres_langfuse
+    existingSecret: langfuse-core
+    secretKeys:
+      userPasswordKey: pg-password
+      adminPasswordKey: pg-password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path-retain
+      size: 5Gi
+    # OKD restricted SCC assigns UID/fsGroup — do not pin bitnami defaults.
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+  volumePermissions:
+    enabled: false
+
+redis:
+  deploy: true
+  auth:
+    existingSecret: langfuse-core
+    existingSecretPasswordKey: redis-password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path-retain
+      size: 2Gi
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+  volumePermissions:
+    enabled: false
+
+# Dedicated ClickHouse for Langfuse (isolated from the HyperDX instance).
+clickhouse:
+  deploy: true
+  auth:
+    existingSecret: langfuse-core
+    existingSecretKey: clickhouse-password
+  # Single node: no sharding, no ON CLUSTER, no ZooKeeper.
+  shards: 1
+  replicaCount: 1
+  clusterEnabled: false
+  zookeeper:
+    enabled: false
+  resourcesPreset: none
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+  persistence:
+    enabled: true
+    storageClass: local-path-retain
+    size: 20Gi
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  volumePermissions:
+    enabled: false
+
+s3:
+  deploy: true
+  bucket: langfuse
+  auth:
+    existingSecret: langfuse-core
+    rootUserSecretKey: minio-root-user
+    rootPasswordSecretKey: minio-root-password
+  defaultBuckets: langfuse
+  persistence:
+    enabled: true
+    storageClass: local-path-retain
+    size: 10Gi
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  volumePermissions:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
