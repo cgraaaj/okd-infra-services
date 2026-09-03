@@ -18,11 +18,19 @@ oc label namespace "${NAMESPACE}" \
 echo "== SCC for default service account =="
 oc adm policy add-scc-to-user privileged -z default -n "${NAMESPACE}" 2>/dev/null || true
 
-for deploy in hyperdx-hdx-oss-v2-clickhouse hyperdx-hdx-oss-v2-mongodb hyperdx-hdx-oss-v2-app; do
-  if oc get deploy "${deploy}" -n "${NAMESPACE}" >/dev/null 2>&1; then
-    oc patch deployment "${deploy}" -n "${NAMESPACE}" --type=merge -p \
-      '{"spec":{"template":{"spec":{"securityContext":{"runAsUser":0,"fsGroup":0}}}}}'
-  fi
-done
+if oc get deploy hyperdx-hdx-oss-v2-clickhouse -n "${NAMESPACE}" >/dev/null 2>&1; then
+  oc patch deployment hyperdx-hdx-oss-v2-clickhouse -n "${NAMESPACE}" --type=merge -p \
+    '{"spec":{"template":{"spec":{"securityContext":{"fsGroup":101,"runAsUser":101,"runAsGroup":101,"seLinuxOptions":{"type":"spc_t"}}}}}}'
+fi
+
+if oc get deploy hyperdx-hdx-oss-v2-mongodb -n "${NAMESPACE}" >/dev/null 2>&1; then
+  oc patch deployment hyperdx-hdx-oss-v2-mongodb -n "${NAMESPACE}" --type=merge -p \
+    '{"spec":{"template":{"spec":{"securityContext":{"fsGroup":999,"runAsUser":999,"runAsGroup":999,"seLinuxOptions":{"type":"spc_t"}}}}}}'
+fi
+
+if oc get deploy hyperdx-hdx-oss-v2-app -n "${NAMESPACE}" >/dev/null 2>&1; then
+  oc patch deployment hyperdx-hdx-oss-v2-app -n "${NAMESPACE}" --type=merge -p \
+    '{"spec":{"template":{"spec":{"securityContext":{"fsGroup":1000,"runAsUser":1000}}}}}'
+fi
 
 echo "done — openshift patches applied"

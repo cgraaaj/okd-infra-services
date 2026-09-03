@@ -29,7 +29,8 @@ mongodb:
   nodeSelector:
     node-role.kubernetes.io/worker: ""
   persistence:
-    enabled: false
+    enabled: true
+    dataSize: 5Gi
   resources:
     requests:
       cpu: 100m
@@ -43,7 +44,9 @@ clickhouse:
   nodeSelector:
     node-role.kubernetes.io/worker: ""
   persistence:
-    enabled: false
+    enabled: true
+    dataSize: 20Gi
+    logSize: 5Gi
   resources:
     requests:
       cpu: 500m
