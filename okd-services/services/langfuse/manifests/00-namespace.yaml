@@ -1,0 +1,7 @@
+# Managed by Argo CD (this instance only manages labeled namespaces).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: langfuse
+  labels:
+    argocd.argoproj.io/managed-by: argocd
