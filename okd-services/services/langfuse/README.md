@@ -52,6 +52,12 @@ pick up new env values).
 
 ## OKD notes
 
+- Web needs a 3 Gi limit and `NODE_OPTIONS=--max-old-space-size=2048`. First
+  boot runs ~424 Prisma migrations then starts Next.js; a 1 Gi / default V8
+  heap OOM-kills the process after migrate succeeds (Prisma advisory-lock
+  timeouts were a symptom of crash-looping replicas, not a slow database).
+- Worker has `LANGFUSE_AUTO_POSTGRES_MIGRATION_DISABLED=true` so it does not
+  race web for `pg_advisory_lock(72707369)`.
 - All bitnami subcharts run under restricted SCC (securityContext helpers
   disabled; OKD assigns UID/fsGroup; `volumePermissions` off).
 - The chart renders port-only NetworkPolicies (no source restrictions), so
@@ -61,6 +67,6 @@ pick up new env values).
 
 ## Resource budget
 
-~4.5 Gi requests total (web 512Mi + worker 512Mi + CH 1Gi + PG 256Mi +
+~5 Gi requests total (web 1Gi + worker 512Mi + CH 1Gi + PG 256Mi +
 valkey 128Mi + minio 256Mi + overheads). Watch worker memory per
 `docs/RESOURCE_PLAN.md` (>80% → offload CH or add RAM).

@@ -32,6 +32,11 @@ langfuse:
   # Headless initialization: org/project/admin user and the project API keys that
   # LiteLLM uses for its langfuse callback (same pair, shared via Vault).
   additionalEnv:
+    # First-boot Prisma (424 migrations) plus Next.js need more than the
+    # container-cgroup default ~512Mi V8 heap; without this the web pod
+    # OOM-kills immediately after migrate succeeds.
+    - name: NODE_OPTIONS
+      value: "--max-old-space-size=2048"
     - name: LANGFUSE_INIT_ORG_ID
       value: "okd"
     - name: LANGFUSE_INIT_ORG_NAME
@@ -73,12 +78,17 @@ langfuse:
     resources:
       requests:
         cpu: 250m
-        memory: 512Mi
-      limits:
         memory: 1Gi
+      limits:
+        memory: 3Gi
   worker:
     image:
       repository: docker.io/langfuse/langfuse-worker
+    # Worker must not race web on Prisma advisory locks at boot.
+    pod:
+      additionalEnv:
+        - name: LANGFUSE_AUTO_POSTGRES_MIGRATION_DISABLED
+          value: "true"
     resources:
       requests:
         cpu: 250m
