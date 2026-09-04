@@ -3,7 +3,7 @@
 LLM observability platform on OKD: traces, generations, token/cost tracking,
 prompt management for everything served through the LiteLLM gateway.
 
-UI: `https://langfuse.cgraaaj.in` (OKD Route + cert-manager edge TLS)
+UI: `https://langfuse.apps.okd.cgraaaj.in` (native OKD Route; VPN/LAN only)
 
 ## Stack (chart langfuse/langfuse 1.5.41, release name `langfuse`)
 
@@ -46,8 +46,10 @@ pick up new env values).
 
 `okd-gitops/environments/prod/platform/langfuse.yaml`:
 
-- `langfuse-config` (wave 0) — `manifests/`: ExternalSecret, Certificate,
-  Route, router TLS RoleBinding.
+- `langfuse-config` (wave 0) — `manifests/`: ExternalSecret and native OKD
+  Route `langfuse.apps.okd.cgraaaj.in`. The router's
+  `*.apps.okd.cgraaaj.in` certificate is used; no Traefik or external
+  certificate is involved.
 - `langfuse` (wave 1) — chart 1.5.41 + `helm/values.yaml`.
 
 ## OKD notes

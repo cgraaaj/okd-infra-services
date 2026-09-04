@@ -53,7 +53,7 @@ if [[ -f "${SECRETS}/litellm.env" && -f "${SECRETS}/langfuse.env" ]]; then
   source "${SECRETS}/langfuse.env"
   put "okd/platform/litellm/core" \
     master_key="${LITELLM_MASTER_KEY:?missing in litellm.env}" \
-    langfuse_host="https://langfuse.cgraaaj.in" \
+    langfuse_host="https://langfuse.apps.okd.cgraaaj.in" \
     langfuse_public_key="${LANGFUSE_INIT_PROJECT_PUBLIC_KEY:?missing in langfuse.env}" \
     langfuse_secret_key="${LANGFUSE_INIT_PROJECT_SECRET_KEY:?missing in langfuse.env}"
   put "okd/platform/litellm/db" \

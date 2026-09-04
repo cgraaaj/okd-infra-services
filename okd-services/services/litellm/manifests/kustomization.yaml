@@ -5,6 +5,4 @@ resources:
   - 00-externalsecret-core.yaml
   - 01-externalsecret-db.yaml
   - 03-scc-rolebinding.yaml
-  - 10-certificate.yaml
   - 11-route.yaml
-  - 12-route-tls-rbac.yaml

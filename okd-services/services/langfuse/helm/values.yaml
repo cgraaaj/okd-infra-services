@@ -8,7 +8,7 @@ langfuse:
     node-role.kubernetes.io/worker: ""
 
   nextauth:
-    url: https://langfuse.cgraaaj.in
+    url: https://langfuse.apps.okd.cgraaaj.in
     secret:
       secretKeyRef:
         name: langfuse-core

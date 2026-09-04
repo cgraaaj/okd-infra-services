@@ -7,7 +7,7 @@ Proxmox AI VM (`ai-server`, AMD Radeon AI PRO R9700) and records every call
 ## Architecture
 
 ```
-Clients ──► https://litellm.cgraaaj.in (Route, edge TLS, cert-manager)
+VPN/LAN clients ──► https://litellm.apps.okd.cgraaaj.in (native OKD Route)
               │  Authorization: Bearer <MASTER_KEY>
               ▼
             litellm proxy (ns llm, ClusterIP :4000)
@@ -40,8 +40,9 @@ Seed/rotate: edit `.secrets/litellm.env` (gitignored), then
 
 `okd-gitops/environments/prod/platform/litellm.yaml`:
 
-- `litellm-config` (wave 0) — `manifests/`: ExternalSecrets, cert-manager
-  Certificate, Route `litellm.cgraaaj.in`, router TLS RoleBinding.
+- `litellm-config` (wave 0) — `manifests/`: ExternalSecrets and native OKD
+  Route `litellm.apps.okd.cgraaaj.in`. The router's `*.apps.okd.cgraaaj.in`
+  certificate is used; no Traefik or external certificate is involved.
 - `litellm` (wave 1) — multi-source: bitnami `postgresql` (OCI 14.3.1,
   `helm/values-postgres.yaml`) + `litellm-helm` (OCI ghcr.io/berriai, 1.99.0,
   `helm/values.yaml`). PostgreSQL is a separate chart source so its password
@@ -64,9 +65,9 @@ Seed/rotate: edit `.secrets/litellm.env` (gitignored), then
 
 ```bash
 source .secrets/litellm.env   # or pull MASTER_KEY from Vault
-curl -s https://litellm.cgraaaj.in/v1/chat/completions \
+curl -s https://litellm.apps.okd.cgraaaj.in/v1/chat/completions \
   -H "Authorization: Bearer ${LITELLM_MASTER_KEY}" \
   -H "Content-Type: application/json" \
   -d '{"model":"qwen3.8-27b","messages":[{"role":"user","content":"Say OK"}],"max_tokens":10}'
-# then confirm the trace appears in https://langfuse.cgraaaj.in (project: default)
+# then confirm the trace appears in https://langfuse.apps.okd.cgraaaj.in (project: default)
 ```
