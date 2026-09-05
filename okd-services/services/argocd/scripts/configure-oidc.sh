@@ -99,10 +99,12 @@ echo "== Argo CD OIDC + RBAC =="
 oc patch argocd argocd -n argocd --type merge -p "$(jq -nc \
   --arg oidc "${OIDC_CONFIG}" \
   --arg policy "${RBAC_POLICY}" \
+  --arg url "https://argocd.apps.okd.cgraaaj.in" \
   '{
     spec: {
       extraConfig: {
-        "oidc.config": $oidc
+        "oidc.config": $oidc,
+        url: $url
       },
       rbac: {
         policy: $policy,

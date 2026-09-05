@@ -24,7 +24,7 @@ oc patch argocd argocd -n argocd --type merge -p '{
       "server.insecure": "true"
     },
     "extraConfig": {
-      "url": "https://argocd.cgraaaj.in",
+      "url": "https://argocd.apps.okd.cgraaaj.in",
       "server.insecure": "true"
     }
   }
@@ -51,4 +51,4 @@ echo "== restart argocd-server to pick up cm url =="
 oc rollout restart deployment/argocd-server -n argocd
 oc rollout status deployment/argocd-server -n argocd --timeout=120s
 
-echo "done — https://argocd.cgraaaj.in"
+echo "done — https://argocd.apps.okd.cgraaaj.in"
