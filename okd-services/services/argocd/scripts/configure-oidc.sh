@@ -74,11 +74,10 @@ ARGOCD_OIDC_CLIENT_SECRET=${ARGOCD_OIDC_CLIENT_SECRET}
 EOF
 chmod 600 "${ENV_FILE}"
 
-echo "== Kubernetes secret (argocd namespace) =="
-oc create secret generic argocd-oidc \
-  -n argocd \
-  --from-literal=oidc.clientSecret="${ARGOCD_OIDC_CLIENT_SECRET}" \
-  --dry-run=client -o yaml | oc apply -f -
+echo "== Kubernetes secret (argocd-secret) =="
+# Argo CD only interpolates $key from Secret argocd-secret in its namespace.
+# A separate argocd-oidc secret is ignored (logs: key does not exist in secret).
+oc patch secret argocd-secret -n argocd --type merge -p "$(jq -nc --arg s "${ARGOCD_OIDC_CLIENT_SECRET}" '{stringData:{"oidc.clientSecret":$s}}')"
 
 OIDC_CONFIG="$(jq -nc \
   --arg name "Authentik" \
@@ -88,7 +87,7 @@ OIDC_CONFIG="$(jq -nc \
     name: $name,
     issuer: $issuer,
     clientID: $clientID,
-    clientSecret: "$argocd-oidc:oidc.clientSecret",
+    clientSecret: "$oidc.clientSecret",
     requestedScopes: ["openid", "profile", "email", "groups"],
     requestedIDTokenClaims: {groups: {essential: true}}
   }')"
