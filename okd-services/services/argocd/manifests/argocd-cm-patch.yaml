@@ -4,7 +4,7 @@ metadata:
   name: argocd-cm
   namespace: argocd
 data:
-  url: https://argocd.cgraaaj.in
+  url: https://argocd.apps.okd.cgraaaj.in
   # Router terminates TLS (edge); Argo CD server serves HTTP behind the route.
   server.insecure: "true"
   application.instanceLabelKey: app.kubernetes.io/instance

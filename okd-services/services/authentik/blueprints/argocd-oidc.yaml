@@ -4,7 +4,7 @@ version: 1
 metadata:
   name: argocd-oidc-prod
   labels:
-    blueprints.goauthentik.io/description: "Argo CD prod OIDC (argocd.cgraaaj.in)"
+    blueprints.goauthentik.io/description: "Argo CD prod OIDC (argocd.apps.okd.cgraaaj.in)"
 entries:
   - id: argocd-oauth-provider
     model: authentik_providers_oauth2.oauth2provider
@@ -24,7 +24,7 @@ entries:
       client_secret: __ARGOCD_OIDC_CLIENT_SECRET__
       redirect_uris:
         - matching_mode: strict
-          url: https://argocd.cgraaaj.in/auth/callback
+          url: https://argocd.apps.okd.cgraaaj.in/auth/callback
       signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
       sub_mode: user_username
       issuer_mode: per_provider
@@ -36,6 +36,6 @@ entries:
       name: Argo CD Prod
       slug: argocd
       provider: !KeyOf argocd-oauth-provider
-      meta_launch_url: https://argocd.cgraaaj.in/
+      meta_launch_url: https://argocd.apps.okd.cgraaaj.in/
       meta_description: OKD prod GitOps
       policy_engine_mode: any

@@ -4,7 +4,7 @@ GitOps control plane via the **Argo CD Operator** (`ArgoCD` CR in namespace `arg
 
 ## Public URL
 
-`https://argocd.cgraaaj.in` — Route edge TLS via cert-manager (`argocd-tls`).
+`https://argocd.apps.okd.cgraaaj.in` — native OKD Route on the cluster ingress domain (VPN/LAN only).
 
 ## Install / configure
 
@@ -15,7 +15,7 @@ export KUBECONFIG=/path/to/okd/kubeconfig
 
 ## Admin login
 
-**Preferred:** Authentik OIDC — click **LOG IN VIA AUThentik** at https://argocd.cgraaaj.in
+**Preferred:** Authentik OIDC — click **LOG IN VIA AUThentik** at https://argocd.apps.okd.cgraaaj.in
 
 ```bash
 ./scripts/configure-oidc.sh   # (re)create Authentik provider + Argo CD config
@@ -51,6 +51,5 @@ export GIT_REPO_URL=https://github.com/YOU/okd-infra-services.git
 | File | Purpose |
 |------|---------|
 | `manifests/argocd-instance.yaml` | Disable operator default Route |
-| `manifests/route.yaml` | `argocd.cgraaaj.in` + externalCertificate |
+| `manifests/route.yaml` | `argocd.apps.okd.cgraaaj.in` (native ingress TLS) |
 | `manifests/argocd-cm-patch.yaml` | Public URL + server.insecure |
-| `manifests/route-tls-rbac.yaml` | Router read access to TLS secret |

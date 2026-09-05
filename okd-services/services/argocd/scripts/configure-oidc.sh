@@ -30,7 +30,7 @@ fi
 
 CLIENT_ID="${ARGOCD_OIDC_CLIENT_ID:-argocd-prod}"
 ISSUER="https://auth.cgraaaj.in/application/o/argocd/"
-REDIRECT_URI="https://argocd.cgraaaj.in/auth/callback"
+REDIRECT_URI="https://argocd.apps.okd.cgraaaj.in/auth/callback"
 
 echo "== Authentik OAuth2 provider (ak shell) =="
 pod="$(oc get pod -n authentik -l app.kubernetes.io/component=server -o jsonpath='{.items[0].metadata.name}')"
@@ -63,7 +63,7 @@ provider, _ = OAuth2Provider.objects.update_or_create(
 provider.property_mappings.set(ScopeMapping.objects.filter(managed__startswith='goauthentik.io/providers/oauth2/scope-'))
 Application.objects.update_or_create(
     slug='argocd',
-    defaults={'name': 'Argo CD Prod', 'provider': provider, 'meta_launch_url': 'https://argocd.cgraaaj.in/'},
+    defaults={'name': 'Argo CD Prod', 'provider': provider, 'meta_launch_url': 'https://argocd.apps.okd.cgraaaj.in/'},
 )
 print('authentik provider ready')
 "
@@ -124,5 +124,5 @@ curl -sf "${ISSUER}.well-known/openid-configuration" | jq -r '.issuer'
 oc rollout restart deployment/argocd-server -n argocd
 oc rollout status deployment/argocd-server -n argocd --timeout=120s
 
-echo "done — use LOG IN VIA AUThentik on https://argocd.cgraaaj.in"
+echo "done — use LOG IN VIA AUThentik on https://argocd.apps.okd.cgraaaj.in"
 echo "admin groups: authentik Admins, argocd-admins | platform: argocd-platform"
