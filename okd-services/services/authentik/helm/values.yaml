@@ -22,6 +22,8 @@ postgresql:
     username: authentik
     database: authentik
     password: "kNmiWUEiy4y23gLYrt1SWFDi2kbNClp0"
+    # Preserve the initial PG superuser credential; otherwise Bitnami generates a new value per render.
+    postgresPassword: "VcUSj98bLE"
   primary:
     args: []
     persistence:
