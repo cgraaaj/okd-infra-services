@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: hyperdx
 spec:
-  host: hyperdx.cgraaaj.in
+  host: hyperdx.apps.okd.cgraaaj.in
   to:
     kind: Service
     name: hyperdx-hdx-oss-v2-app
@@ -16,6 +16,4 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
-    externalCertificate:
-      name: hyperdx-tls
   wildcardPolicy: None

@@ -34,4 +34,4 @@ oc rollout status deployment/hyperdx-hdx-oss-v2-app -n "${NAMESPACE}" --timeout=
 echo "== Route + TLS =="
 oc apply -k "${ROOT}/manifests/"
 
-echo "done — UI: https://hyperdx.cgraaaj.in (ingest via otel-gateway.observability.svc:4317)"
+echo "done — UI: https://hyperdx.apps.okd.cgraaaj.in (ingest via otel-gateway.observability.svc:4317)"

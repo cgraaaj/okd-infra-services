@@ -9,7 +9,7 @@ otel:
   enabled: false
 
 hyperdx:
-  frontendUrl: "https://hyperdx.cgraaaj.in"
+  frontendUrl: "https://hyperdx.apps.okd.cgraaaj.in"
   apiKey: "2da92945-b35c-4a21-b845-313d92305119"
   otelExporterEndpoint: "http://otel-gateway.observability.svc.cluster.local:4318"
   ingress:

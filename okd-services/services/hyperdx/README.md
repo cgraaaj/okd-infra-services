@@ -10,7 +10,7 @@ App → otel-agent → otel-gateway → ClickHouse (otel_* tables)
 HyperDX UI ───────────────────────────┘
 ```
 
-Public UI: `https://hyperdx.cgraaaj.in` (OKD Route + cert-manager)
+UI: `https://hyperdx.apps.okd.cgraaaj.in` (native OKD Route; VPN/LAN only)
 
 ## Status
 
