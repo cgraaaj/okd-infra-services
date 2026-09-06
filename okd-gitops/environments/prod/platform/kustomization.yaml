@@ -10,4 +10,5 @@ resources:
   - otel-collector.yaml
   - hyperdx.yaml
   - litellm.yaml
+  - grafana.yaml
   - langfuse.yaml

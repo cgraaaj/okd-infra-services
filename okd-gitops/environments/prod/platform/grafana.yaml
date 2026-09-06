@@ -1,0 +1,53 @@
+# Grafana: ESO secret + namespace + RBAC first (wave 0), then chart (wave 1).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/cgraaaj/okd-infra-services.git
+    targetRevision: main
+    path: okd-services/services/grafana/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: grafana
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: platform
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: grafana
+      targetRevision: 10.5.15
+      helm:
+        releaseName: grafana
+        valueFiles:
+          - $values/okd-services/services/grafana/helm/values.yaml
+    - repoURL: https://github.com/cgraaaj/okd-infra-services.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: grafana
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

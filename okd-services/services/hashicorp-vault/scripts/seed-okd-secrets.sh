@@ -31,6 +31,16 @@ if [[ -f "${SECRETS}/argocd-oidc.env" ]]; then
     client_secret="${ARGOCD_OIDC_CLIENT_SECRET:?missing in argocd-oidc.env}"
 fi
 
+if [[ -f "${SECRETS}/grafana.env" ]]; then
+  # shellcheck disable=SC1090
+  source "${SECRETS}/grafana.env"
+  put "okd/platform/grafana/core" \
+    admin_user="admin" \
+    admin_password="${GRAFANA_ADMIN_PASSWORD:?missing in grafana.env}" \
+    client_secret="${GRAFANA_OIDC_CLIENT_SECRET:?missing in grafana.env}"
+  echo "  note: prometheus_token not in grafana.env; re-run configure-oidc.sh to reseed it"
+fi
+
 if [[ -f "${SECRETS}/cloudflare-token" ]]; then
   CF_TOKEN="$(tr -d '\n' < "${SECRETS}/cloudflare-token")"
   put "okd/platform/cert-manager/cloudflare" api-token="${CF_TOKEN}"

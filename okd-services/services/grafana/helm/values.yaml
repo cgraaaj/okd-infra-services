@@ -1,0 +1,101 @@
+global:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+# Admin credentials come from grafana-core (ESO secret).
+admin:
+  existingSecret: grafana-core
+  userKey: admin-user
+  passwordKey: admin-password
+
+# Inject OIDC client secret + Prometheus bearer token as env vars.
+envFromSecret: grafana-core
+
+persistence:
+  enabled: true
+  storageClassName: local-path-retain
+  size: 2Gi
+
+# OKD router handles TLS edge termination; use OKD Route instead.
+ingress:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+# Required for local-path (hostPath) PVCs: kubelet does not SELinux-relabel
+# hostPath mounts, so the container needs spc_t to write them.
+securityContext:
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+  seLinuxOptions:
+    type: spc_t
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 472
+  seccompProfile:
+    type: RuntimeDefault
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+"grafana.ini":
+  server:
+    root_url: https://grafana.apps.okd.cgraaaj.in
+    serve_from_sub_path: "false"
+  auth:
+    disable_login_form: "false"
+    oauth_auto_login: "false"
+    signout_redirect_url: https://auth.cgraaaj.in/application/o/grafana/end-session/
+  "auth.generic_oauth":
+    enabled: "true"
+    name: Authentik
+    allow_sign_up: "true"
+    auto_login: "false"
+    client_id: grafana-prod
+    client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+    scopes: "openid email profile groups"
+    auth_url: https://auth.cgraaaj.in/application/o/authorize/
+    token_url: https://auth.cgraaaj.in/application/o/token/
+    api_url: https://auth.cgraaaj.in/application/o/userinfo/
+    role_attribute_path: "contains(groups[*], 'authentik Admins') && 'Admin' || 'Viewer'"
+    use_pkce: "true"
+    empty_scopes: "false"
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+        access: proxy
+        isDefault: true
+        jsonData:
+          httpMethod: POST
+          httpHeaderName1: Authorization
+          tlsSkipVerify: true
+        secureJsonData:
+          httpHeaderValue1: Bearer ${GF_PROMETHEUS_BEARER_TOKEN}
+      - name: Alertmanager
+        type: alertmanager
+        url: https://alertmanager-main.openshift-monitoring.svc.cluster.local:9094
+        access: proxy
+        jsonData:
+          httpHeaderName1: Authorization
+          tlsSkipVerify: true
+          handleGrafanaManagedAlerts: "false"
+        secureJsonData:
+          httpHeaderValue1: Bearer ${GF_PROMETHEUS_BEARER_TOKEN}
