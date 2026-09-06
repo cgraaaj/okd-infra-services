@@ -15,7 +15,9 @@ export KUBECONFIG=/path/to/okd/kubeconfig
 
 ## Admin login
 
-**Preferred:** Authentik OIDC — click **LOG IN VIA AUThentik** at https://argocd.apps.okd.cgraaaj.in
+**Preferred:** Authentik OIDC — click **LOG IN VIA AUTHENTIK** at https://argocd.apps.okd.cgraaaj.in
+
+Use that host only. `https://argocd.cgraaaj.in` is no longer routed (Traefik 404). Clear site cookies if an old OIDC session keeps bouncing you to Authentik.
 
 ```bash
 ./scripts/configure-oidc.sh   # (re)create Authentik provider + Argo CD config

@@ -39,10 +39,16 @@ from authentik.providers.oauth2.models import OAuth2Provider, RedirectURI, Redir
 from authentik.core.models import Application
 from authentik.flows.models import Flow
 from authentik.crypto.models import CertificateKeyPair
+from authentik.brands.models import Brand
 import os
 secret = os.environ['OIDC_SECRET']
 redirect = os.environ['REDIRECT_URI']
 client_id = os.environ['CLIENT_ID']
+# Brand domain must match the public hostname or some /if/flow URLs 404.
+brand = Brand.objects.filter(default=True).first()
+if brand and brand.domain != 'auth.cgraaaj.in':
+    brand.domain = 'auth.cgraaaj.in'
+    brand.save()
 auth_flow = Flow.objects.get(slug='default-provider-authorization-implicit-consent')
 inv_flow = Flow.objects.get(slug='default-provider-invalidation-flow')
 signing_key = CertificateKeyPair.objects.get(name='authentik Self-signed Certificate')
@@ -60,7 +66,19 @@ provider, _ = OAuth2Provider.objects.update_or_create(
         'issuer_mode': 'per_provider',
     },
 )
-provider.property_mappings.set(ScopeMapping.objects.filter(managed__startswith='goauthentik.io/providers/oauth2/scope-'))
+# Authentik 2025.12 dropped managed scope-groups; profile still embeds groups,
+# but Argo CD requests scope=groups so keep an explicit mapping.
+groups_map, _ = ScopeMapping.objects.update_or_create(
+    name='Argo CD groups',
+    defaults={
+        'scope_name': 'groups',
+        'description': 'Group names for Argo CD RBAC',
+        'expression': 'return [group.name for group in request.user.ak_groups.all()]',
+    },
+)
+mappings = list(ScopeMapping.objects.filter(managed__startswith='goauthentik.io/providers/oauth2/scope-'))
+mappings.append(groups_map)
+provider.property_mappings.set(mappings)
 Application.objects.update_or_create(
     slug='argocd',
     defaults={'name': 'Argo CD Prod', 'provider': provider, 'meta_launch_url': 'https://argocd.apps.okd.cgraaaj.in/'},
@@ -88,8 +106,7 @@ OIDC_CONFIG="$(jq -nc \
     issuer: $issuer,
     clientID: $clientID,
     clientSecret: "$oidc.clientSecret",
-    requestedScopes: ["openid", "profile", "email", "groups"],
-    requestedIDTokenClaims: {groups: {essential: true}}
+    requestedScopes: ["openid", "profile", "email", "groups"]
   }')"
 
 RBAC_POLICY=$'p, role:platform-admin, applications, *, */*, allow\np, role:platform-admin, clusters, get, *, allow\np, role:platform-admin, repositories, *, *, allow\np, role:platform-admin, projects, *, *, allow\np, role:platform-admin, logs, get, *, allow\np, role:platform-admin, exec, create, */*, allow\ng, authentik Admins, role:admin\ng, argocd-admins, role:admin\ng, argocd-platform, role:platform-admin'

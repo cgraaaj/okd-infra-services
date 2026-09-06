@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ping -c 1 api.okd.cgraaaj.in)",
+      "Bash(nslookup api.okd.cgraaaj.in)",
+      "Bash(oc login *)",
+      "Bash(oc get *)",
+      "Bash(awk '{print $1}')",
+      "Bash(helm repo *)",
+      "Bash(helm search *)",
+      "Bash(curl -s -k https://hashicorpvault.cgraaaj.in/v1/sys/health)"
+    ]
+  }
+}

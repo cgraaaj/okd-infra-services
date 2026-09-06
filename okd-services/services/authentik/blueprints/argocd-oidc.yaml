@@ -18,7 +18,8 @@ entries:
         - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
         - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
         - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
-        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-groups]]
+        # scope-groups was removed in Authentik 2025.12; created by configure-oidc.sh
+        - !Find [authentik_providers_oauth2.scopemapping, [name, Argo CD groups]]
       client_type: confidential
       client_id: argocd-prod
       client_secret: __ARGOCD_OIDC_CLIENT_SECRET__
