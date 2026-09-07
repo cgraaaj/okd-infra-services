@@ -25,6 +25,12 @@ service:
   port: 80
   targetPort: 3000
 
+# OKD SELinux: the init-chown-data container (runs as root + CHOWN cap) hits
+# SELinux denial on the hostPath subdirs even with spc_t on the main container.
+# The PVC is already owned 472:472 so the chown is unnecessary — disable it.
+initChownData:
+  enabled: false
+
 # Required for local-path (hostPath) PVCs: kubelet does not SELinux-relabel
 # hostPath mounts, so the container needs spc_t to write them.
 securityContext:
