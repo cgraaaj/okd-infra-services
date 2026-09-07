@@ -26,6 +26,7 @@
 | C3 | GitOps-manage cert-manager, local-path, authentik | ✅ |
 | C7 | Authentik OIDC for Argo CD | ✅ |
 | C4 | External Secrets Operator + Vault | ✅ |
+| C8 | Authentik CNPG HA migration (2 instances) + 2 server/worker replicas | ✅ |
 | C6 | Restore Authentication operator `Managed` | optional |
 
 ## In progress / next

@@ -4,6 +4,7 @@ resources:
   - local-path-provisioner.yaml
   - cert-manager.yaml
   - cert-manager-config.yaml
+  - cnpg.yaml
   - authentik.yaml
   - argocd-config.yaml
   - external-secrets.yaml

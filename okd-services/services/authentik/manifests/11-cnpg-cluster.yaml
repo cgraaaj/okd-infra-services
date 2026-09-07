@@ -1,0 +1,42 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-pg
+  namespace: authentik
+spec:
+  instances: 2
+
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      max_connections: "200"
+      log_statement: "ddl"
+
+  storage:
+    size: 8Gi
+    storageClass: local-path-retain
+
+  superuserSecret:
+    name: authentik-pg-superuser
+
+  bootstrap:
+    initdb:
+      database: authentik
+      owner: authentik
+      secret:
+        name: authentik-pg-app
+
+  affinity:
+    nodeSelector:
+      node-role.kubernetes.io/worker: ""
+    topologyKey: kubernetes.io/hostname
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  monitoring:
+    enablePodMonitor: false

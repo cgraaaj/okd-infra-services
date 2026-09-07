@@ -1,6 +1,6 @@
 # CURRENT_STATE — OKD Prod Cluster
 
-> Last updated: 2026-09-01 (post Phase C4 + D1)
+> Last updated: 2026-09-08 (Authentik CNPG HA migration)
 
 ## Cluster Summary
 
@@ -31,7 +31,8 @@ Masters have `node-role.kubernetes.io/control-plane:NoSchedule`. User workloads 
 
 | Namespace | Workload | Purpose | Node |
 |-----------|----------|---------|------|
-| `authentik` | server, worker, postgresql | Prod IdP | workers |
+| `cnpg-system` | cnpg-cloudnative-pg | CloudNative-PG Operator | workers |
+| `authentik` | server (2), worker (2), authentik-pg (CNPG 2 instances) | Prod IdP HA | workers |
 | `cert-manager` | controller, webhook, cainjector | TLS (LE DNS-01) | workers |
 | `local-path-storage` | provisioner | Dynamic local PVs | workers |
 | `argocd` | server, repo-server, redis, controller | Argo CD (operator) | workers |

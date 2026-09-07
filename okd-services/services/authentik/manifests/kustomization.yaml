@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - route.yaml
+  - 10-cnpg-credentials.yaml
+  - 11-cnpg-cluster.yaml
+  - 12-cnpg-scc.yaml

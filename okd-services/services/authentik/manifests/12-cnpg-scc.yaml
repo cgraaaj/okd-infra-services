@@ -1,0 +1,15 @@
+# Allow CNPG PostgreSQL pods (SA = cluster name) to run with UID 26 (postgres)
+# and write to local-path (hostPath) PVCs with SELinux spc_t.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: authentik-pg-privileged-scc
+  namespace: authentik
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+  - kind: ServiceAccount
+    name: authentik-pg
+    namespace: authentik

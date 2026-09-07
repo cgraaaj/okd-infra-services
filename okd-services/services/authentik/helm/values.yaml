@@ -3,6 +3,10 @@ authentik:
   error_reporting:
     enabled: false
   postgresql:
+    host: authentik-pg-rw
+    port: 5432
+    name: authentik
+    user: authentik
     password: "kNmiWUEiy4y23gLYrt1SWFDi2kbNClp0"
 
 global:
@@ -10,36 +14,36 @@ global:
     node-role.kubernetes.io/worker: ""
 
 server:
+  replicas: 2
   ingress:
     enabled: false
   env:
     - name: AUTHENTIK_HOST
       value: "https://auth.cgraaaj.in"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: server
+                app.kubernetes.io/instance: authentik
+            topologyKey: kubernetes.io/hostname
 
+worker:
+  replicas: 2
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: worker
+                app.kubernetes.io/instance: authentik
+            topologyKey: kubernetes.io/hostname
+
+# Bitnami PostgreSQL subchart DISABLED — using CNPG cluster (authentik-pg-rw).
 postgresql:
-  enabled: true
-  auth:
-    username: authentik
-    database: authentik
-    password: "kNmiWUEiy4y23gLYrt1SWFDi2kbNClp0"
-    # Preserve the initial PG superuser credential; otherwise Bitnami generates a new value per render.
-    postgresPassword: "VcUSj98bLE"
-  primary:
-    args: []
-    persistence:
-      enabled: true
-      storageClass: local-path-retain
-      size: 8Gi
-    podSecurityContext:
-      fsGroup: 999
-      fsGroupChangePolicy: OnRootMismatch
-    containerSecurityContext:
-      runAsUser: 999
-      runAsNonRoot: true
-      readOnlyRootFilesystem: false
-    extraEnvVars:
-      - name: PGDATA
-        value: /var/lib/postgresql/data/pgdata
-    configuration: ""
-    pgHbaConfiguration: ""
-    extendedConfiguration: ""
+  enabled: false
